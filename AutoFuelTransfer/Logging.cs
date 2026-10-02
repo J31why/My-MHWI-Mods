@@ -1,6 +1,6 @@
 ﻿using SharpPluginLoader.Core;
 
-namespace Commmon;
+namespace Common;
 
 internal static class Logging
 {
@@ -15,5 +15,12 @@ internal static class Logging
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Log.Error($"[{Name}] {message}");
+    }
+
+    public static void Warn(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"[{DateTime.Now:HH:mm:ss}][{Name}] {message}");
+        Log.Warn($"[{Name}] {message}");
     }
 }

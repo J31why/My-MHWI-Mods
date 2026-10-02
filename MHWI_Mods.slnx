@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="AutoFuelTransfer/AutoFuelTransfer.csproj" />
-  <Project Path="AutoItemResore/AutoItemResore.csproj" />
+  <Project Path="AutoItemRestore/AutoItemRestore.csproj" Id="4c3698eb-0cb5-4423-913c-3e415266238d" />
   <Project Path="QuickQuestComplete/QuickQuestComplete.csproj" />
 </Solution>

@@ -1,4 +1,4 @@
-﻿using Commmon;
+﻿using Common;
 using SharpPluginLoader.Core;
 using SharpPluginLoader.Core.IO;
 using System.Reflection;

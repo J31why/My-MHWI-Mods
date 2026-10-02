@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\AutoFuelTransfer\Logging.cs" Link="Logging.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SharpPluginLoader.Core" Version="2.0.0" />
   </ItemGroup>
 

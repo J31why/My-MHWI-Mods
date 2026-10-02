@@ -1,20 +1,16 @@
-﻿using Commmon;
-using Iced.Intel;
+﻿using Common;
 using SharpPluginLoader.Core;
-using SharpPluginLoader.Core.IO;
-using SharpPluginLoader.Core.Memory;
 using SharpPluginLoader.Core.Savedata;
 using SharpPluginLoader.Core.SaveData;
 
-namespace AutoItemResore;
+namespace AutoItemRestore;
 
-public class AutoItemResorePlugin : IPlugin
+public class AutoItemRestorePlugin : IPlugin
 {
-    public string Name => "AutoItemResore";
+    public string Name => "AutoItemRestore";
     public string Author => "Jelly";
     private Item[]? _itemPouchSnapshot;
     private Item[]? _ammoPouchSnapshot;
-
 
     private bool _isEnabled = false;
 
@@ -23,7 +19,10 @@ public class AutoItemResorePlugin : IPlugin
         Logging.Name = Name;
         _isEnabled = Box.IsAddrMatch();
         if (_isEnabled)
+        {
             Logging.Info("loaded.");
+            Logging.Warn("please backup your save data before using this plugin.");
+        }
         else
             Logging.Error("load failed, plugin initialization error.");
     }
@@ -31,23 +30,23 @@ public class AutoItemResorePlugin : IPlugin
     public void OnQuestEnter(int questId)
     {
         if (!_isEnabled) return;
-        SnapshotPouches();
+        Snapshot();
     }
 
     public void OnQuestLeave(int questId)
     {
         if (!_isEnabled) return;
-        RestorePouches();
+        Restore();
     }
 
-    private void SnapshotPouches()
+    private void Snapshot()
     {
         try
         {
             var userdata = UserData.GetCurrentUserData();
             _itemPouchSnapshot = userdata.ItemPouch.ToArray();
             _ammoPouchSnapshot = userdata.AmmoPouch.ToArray();
-            Logging.Info("items saved.");
+            Logging.Info("item/ammo pouch snapshot saved.");
         }
         catch (Exception e)
         {
@@ -55,7 +54,7 @@ public class AutoItemResorePlugin : IPlugin
         }
     }
 
-    private void RestorePouches()
+    private void Restore()
     {
         if (_itemPouchSnapshot is null || _ammoPouchSnapshot is null)
             return;
@@ -64,19 +63,27 @@ public class AutoItemResorePlugin : IPlugin
             var userdata = UserData.GetCurrentUserData();
             var itempouch = userdata.ItemPouch;
             var ammopouch = userdata.AmmoPouch;
+            var failed = false;
             for (int i = 0; i < _itemPouchSnapshot.Length; i++)
             {
-                ref var item = ref itempouch[i];
                 var snapshot = _itemPouchSnapshot[i];
-                RestoreSlot(userdata, ref item, snapshot, false);
+                ref var item = ref itempouch[i];
+                var result = RestoreSlot(userdata, ref item, snapshot, false);
+                if(!result)
+                    failed = true;
             }
             for (int i = 0; i < _ammoPouchSnapshot.Length; i++)
             {
-                ref var item = ref ammopouch[i];
                 var snapshot = _ammoPouchSnapshot[i];
-                RestoreSlot(userdata, ref item, snapshot, true);
+                ref var item = ref ammopouch[i];
+                var result = RestoreSlot(userdata, ref item, snapshot, true);
+                if (!result)
+                    failed = true;
             }
-            Logging.Info("items restored.");
+            if (failed)
+                Logging.Warn("some items failed to restore, the item box may be full, please check your item pouch and ammo pouch.");
+            else
+                Logging.Info("item/ammo pouch restored successfully.");
         }
         catch (Exception e)
         {
@@ -89,12 +96,16 @@ public class AutoItemResorePlugin : IPlugin
         }
     }
 
-    private static void RestoreSlot(UserData userData, ref Item item, Item snapshot, bool isAmmo)
+    private static bool RestoreSlot(UserData userData, ref Item item, Item snapshot, bool isAmmo)
     {
-        if(snapshot.Id != item.Id)
-            Box.Take(userData, ref item, snapshot.Id, snapshot.Count, isAmmo);
-        else
-            Box.Restock(userData, ref item, snapshot.Count, isAmmo);
+        if (item.Id == 0 && snapshot.Id == 0)
+            return true;
+        else if (snapshot.Id == 0 && item.Id > 0)
+            return Box.Store(userData, ref item, isAmmo);
+        else if (snapshot.Id > 0 && snapshot.Id != item.Id)
+            return Box.Take(userData, ref item, snapshot.Id, snapshot.Count, isAmmo);
+        else if (snapshot.Id > 0 && snapshot.Id == item.Id)
+            return Box.Restock(userData, ref item, snapshot.Count, isAmmo);
+        return false;
     }
-
 }
