@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AutoFuelTransfer/AutoFuelTransfer.csproj" />
+  <Project Path="QuickQuestComplete/QuickQuestComplete.csproj" />
+</Solution>
