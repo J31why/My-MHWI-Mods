@@ -81,7 +81,7 @@ public class AutoItemRestorePlugin : IPlugin
                     failed = true;
             }
             if (failed)
-                Logging.Warn("some items failed to restore, the item box may be full, please check your item pouch and ammo pouch.");
+                Logging.Warn("Some items failed to restore. Item box may be lack items. Check your item pouch.");
             else
                 Logging.Info("item/ammo pouch restored successfully.");
         }
