@@ -31,7 +31,8 @@ internal static class Box
         }
     }
 
-
+    /// <summary>Stores the pouch item into the box. Clears the slot on success.</summary>
+    /// <returns>true if fully stored; false if empty, invalid count, or box is full.</returns>
     public static bool Store(UserData userdata, ref Item item, bool isAmmo)
     {
         if (item.Id == 0 || item.Count <= 0)
@@ -45,6 +46,8 @@ internal static class Box
         return true;
     }
 
+    /// <summary>Sets the pouch slot to the given item and restocks up to count.</summary>
+    /// <returns>true if the slot ends with Id == id and Count >= count; false otherwise.</returns>
     public static bool Take(UserData userdata, ref Item pouchItem, int id, int count, bool isAmmo)
     {
         if (id == 0 || count <= 0)
@@ -73,9 +76,8 @@ internal static class Box
         return pouchItem.Id == id && pouchItem.Count >= count;
     }
 
-    /// <summary>
-    /// return true if the item is restocked to the desired count, false otherwise. 
-    /// </summary>
+    /// <summary>Restocks the pouch item from the box up to dst.</summary>
+    /// <returns>true if item.Count >= dst; false otherwise.</returns>
     public static bool Restock(UserData userdata, ref Item item, int dst, bool isAmmo)
     {
         if (item.Id == 0 || dst <= 0) return false;
@@ -94,12 +96,7 @@ internal static class Box
         return ref userdata.GetRef<Item>((isAmmo ? _ammoBoxAddr : _itemBoxAddr) + (slot * _itemSize));
     }
 
-    /// <summary>
-    /// return slot index of the item in the box, if not found return -1
-    /// </summary>
-    /// <param name="userdata"></param>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <summary>Returns the slot index of the item in the box, or -1 if not found.</summary>
     public static int FindSlot(UserData userdata,int id, bool isAmmo)
     {
         var addr = isAmmo ? _ammoBoxAddr : _itemBoxAddr;
@@ -119,6 +116,8 @@ internal static class Box
         if (count == 0)
             item.Id = 0;
     }
+    /// <summary>Adds the item into the box. Fails if the stack would exceed 9999 or the box is full.</summary>
+    /// <returns>true if added; false if nothing was changed.</returns>
     public static bool TryAddToBox(UserData userdata, int id, int count, bool isAmmo)
     {
         if (id == 0 || count <= 0) return false;
@@ -141,7 +140,8 @@ internal static class Box
         SetItemCount(ref boxItem, dst);
         return true;
     }
-
+    /// <summary>Removes up to count from the box. May remove fewer if the stack is smaller.</summary>
+    /// <returns>true if at least one was removed; false if nothing was changed.</returns>
     public static bool TryRemoveFromBox(UserData userdata, int id, int count, bool isAmmo, out int removedCount)
     {
         removedCount = 0;
