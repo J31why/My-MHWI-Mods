@@ -29,7 +29,7 @@ public class QuickQuestCompletePlugin : IPlugin
         Logging.Info("loaded. Hotkey: Ctrl + Alt + Home");
         KeyBindings.AddKeybind(_hotkeyName, new Keybind<Key>(Key.Home, [Key.LeftControl, Key.LeftAlt]));
     }
-    
+
     private bool InitializeEndQuest()
     {
         var questType = typeof(Quest);
@@ -76,7 +76,7 @@ public class QuickQuestCompletePlugin : IPlugin
             {
                 Logging.Error(e.ToString());
             }
-            
+
         }
     }
 
@@ -84,11 +84,11 @@ public class QuickQuestCompletePlugin : IPlugin
     {
         var questId = Quest.CurrentQuestId;
         if (questId < 0) return;
-        var questState = (QuestState)Quest.QuestState; 
+        var questState = (QuestState)Quest.QuestState;
         ref var questEndTimer = ref Quest.QuestEndTimer;
         if (questState == QuestState.Completed
-            && questEndTimer.Time > 0f 
-            && questEndTimer.Active 
+            && questEndTimer.Time > 0f
+            && questEndTimer.Active
             && !questEndTimer.Ended())
         {
             questEndTimer.SetToEnd();

@@ -69,7 +69,7 @@ public class AutoItemRestorePlugin : IPlugin
                 var snapshot = _itemPouchSnapshot[i];
                 ref var item = ref itempouch[i];
                 var result = RestoreSlot(userdata, ref item, snapshot, false);
-                if(!result)
+                if (!result)
                     failed = true;
             }
             for (int i = 0; i < _ammoPouchSnapshot.Length; i++)
@@ -81,7 +81,11 @@ public class AutoItemRestorePlugin : IPlugin
                     failed = true;
             }
             if (failed)
-                Logging.Warn("Some items failed to restore. Item box may be lack items. Check your item pouch.");
+            {
+                var msg = "Some items failed to restore.\n Item box may be lack items. Check your item pouch.";
+                Gui.DisplayMessage(msg, true);
+                Logging.Warn(msg);
+            }
             else
                 Logging.Info("item/ammo pouch restored successfully.");
         }

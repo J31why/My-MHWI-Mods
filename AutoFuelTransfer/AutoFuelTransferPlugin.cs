@@ -20,7 +20,7 @@ public class AutoFuelTransferPlugin : IPlugin
     {
         Logging.Name = Name;
         _isEnabled = IsAddrMatch();
-        if (_isEnabled) 
+        if (_isEnabled)
             Logging.Info("loaded.");
         else
             Logging.Error("load failed, plugin initialization error.");
@@ -39,7 +39,7 @@ public class AutoFuelTransferPlugin : IPlugin
             Logging.Error(e.ToString());
             return false;
         }
-        
+
     }
 
     public void OnQuestLeave(int questId)
@@ -57,7 +57,7 @@ public class AutoFuelTransferPlugin : IPlugin
 
     private void TransferFuel()
     {
-        if (!_isEnabled) 
+        if (!_isEnabled)
             return;
         var userdata = UserData.GetCurrentUserData();
         if (userdata is null)

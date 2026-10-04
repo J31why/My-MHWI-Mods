@@ -91,13 +91,13 @@ internal static class Box
 
     public static ref Item GetBoxItem(UserData userdata, int slot, bool isAmmo)
     {
-        if(slot <0 || slot >= (isAmmo ? _ammoBoxSlotCount : _itemBoxSlotCount))
+        if (slot < 0 || slot >= (isAmmo ? _ammoBoxSlotCount : _itemBoxSlotCount))
             throw new ArgumentOutOfRangeException(nameof(slot));
         return ref userdata.GetRef<Item>((isAmmo ? _ammoBoxAddr : _itemBoxAddr) + (slot * _itemSize));
     }
 
     /// <summary>Returns the slot index of the item in the box, or -1 if not found.</summary>
-    public static int FindSlot(UserData userdata,int id, bool isAmmo)
+    public static int FindSlot(UserData userdata, int id, bool isAmmo)
     {
         var addr = isAmmo ? _ammoBoxAddr : _itemBoxAddr;
         var slotCount = isAmmo ? _ammoBoxSlotCount : _itemBoxSlotCount;
@@ -130,7 +130,7 @@ internal static class Box
         }
 
         ref var boxItem = ref GetBoxItem(userdata, slot, isAmmo);
-       
+
         var dst = boxItem.Count + count;
         if (dst > 9999) return false;
 

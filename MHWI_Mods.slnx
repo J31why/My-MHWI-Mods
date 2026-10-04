@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="AutoFarm/AutoFarm.csproj" Id="f8aeca19-3e9e-406e-add2-6aa14de4a625" />
   <Project Path="AutoFuelTransfer/AutoFuelTransfer.csproj" />
   <Project Path="AutoItemRestore/AutoItemRestore.csproj" Id="4c3698eb-0cb5-4423-913c-3e415266238d" />
   <Project Path="QuickQuestComplete/QuickQuestComplete.csproj" />
