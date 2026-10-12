@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>FoodLock_Restart</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\AutoFuelTransfer\Logging.cs" Link="Logging.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SharpPluginLoader.Core" Version="2.0.0" />
+	</ItemGroup>
+</Project>

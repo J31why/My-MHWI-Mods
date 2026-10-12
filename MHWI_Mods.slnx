@@ -2,5 +2,7 @@
   <Project Path="AutoFarm/AutoFarm.csproj" Id="f8aeca19-3e9e-406e-add2-6aa14de4a625" />
   <Project Path="AutoFuelTransfer/AutoFuelTransfer.csproj" />
   <Project Path="AutoItemRestore/AutoItemRestore.csproj" Id="4c3698eb-0cb5-4423-913c-3e415266238d" />
+  <Project Path="FoodLock&amp;Restart/FoodLock&amp;Restart.csproj" Id="1f07da75-e2bd-406e-b3e8-b55f22d3673f" />
   <Project Path="QuickQuestComplete/QuickQuestComplete.csproj" />
+  <Project Path="test/test.csproj" Id="0e71e41c-8293-46bf-b70f-3cb17ca16ff8" />
 </Solution>
