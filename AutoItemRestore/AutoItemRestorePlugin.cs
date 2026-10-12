@@ -104,12 +104,37 @@ public class AutoItemRestorePlugin : IPlugin
     {
         if (item.Id == 0 && snapshot.Id == 0)
             return true;
-        else if (snapshot.Id == 0 && item.Id > 0)
-            return Box.Store(userData, ref item, isAmmo);
-        else if (snapshot.Id > 0 && snapshot.Id != item.Id)
-            return Box.Take(userData, ref item, snapshot.Id, snapshot.Count, isAmmo);
-        else if (snapshot.Id > 0 && snapshot.Id == item.Id)
-            return Box.Restock(userData, ref item, snapshot.Count, isAmmo);
+
+        if (snapshot.Id == 0 && item.Id > 0)
+            return Box.Store(userData, ref item, out _);
+
+        if (snapshot.Id > 0)
+        {
+           
+            if (item.Id > 0 && item.Id != snapshot.Id)
+            {
+                if (!Box.Store(userData, ref item, out _))
+                    return false;
+            }
+            
+
+            if (item.Id == 0)
+            {
+                if (!Box.Take(userData, ref item, snapshot.Id, snapshot.Count, out var taken))
+                    return false;
+                return taken == snapshot.Count;
+            }
+
+            if (item.Id == snapshot.Id)
+            {
+                if (item.Count >= snapshot.Count)
+                    return true;
+                if (!Box.Restock(userData, ref item, snapshot.Count, out var restocked))
+                    return false;
+                return item.Count == snapshot.Count;
+            }
+        }
         return false;
     }
+
 }
