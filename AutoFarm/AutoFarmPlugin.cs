@@ -1,5 +1,6 @@
 ﻿using Common;
 using SharpPluginLoader.Core;
+using SharpPluginLoader.Core.Savedata;
 
 namespace AutoFarm;
 
@@ -26,6 +27,7 @@ public class AutoFarmPlugin : IPlugin
         try
         {
             HandleHarvest();
+        
         }
         catch (Exception e)
         {
@@ -43,6 +45,14 @@ public class AutoFarmPlugin : IPlugin
         {
             Logging.Warn("Harvest failed. Please check whether your Item box is full.");
         }
+        var userdata = UserData.GetCurrentUserData();
+        var index = Box.FindSlotIndex(userdata, Box.ItemCategory.Item, 234); //Great Hornfly
+        if (index != -1)
+        {
+            ref var slot = ref Box.GetSlot(userdata, Box.ItemCategory.Item, index);
+            Box.Store(userdata,ref slot,out _);
+            slot.Id = 0;
+            slot.Count = 0;
+        }
     }
-
 }

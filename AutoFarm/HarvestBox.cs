@@ -39,8 +39,9 @@ internal static class HarvestBox
         {
             ref var slot = ref userdata.GetRef<Item>((nint)(_harvestBoxAddr + i * _structureSize));
             if (slot.Id <= 0) continue;
-            var result = Box.Store(userdata, ref slot, false);
-            if (!result) success = false;
+            var result = Box.Store(userdata, ref slot,out _);
+            if (!result) 
+                success = false;
         }
         return success;
     }
@@ -75,7 +76,5 @@ internal static class HarvestBox
         }
         return false;
     }
-
-
 
 }
