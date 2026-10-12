@@ -22,13 +22,13 @@ public class FoodLock_RestartPlugin : IPlugin
     #region quest
     private static Hook<AcceptQuest>? _acceptQuestHook;
     private delegate void AcceptQuest(nint questMgr, int save, int unk);
-    private readonly nint _acceptQuestCall = new(0x141141C40);
-    private readonly NativeFunction<nint, nint> _leaveQuest = new(0x141B66A70);
-    private readonly NativeAction<nint> _restoreItems = new(0x141B5B470);
+    private static readonly nint _acceptQuestCall = new(0x141141C40);
+    private static nint _questCtx = 0;
+    private static readonly NativeFunction<nint, nint> _leaveQuest = new(0x141B66A70);
+    private static readonly NativeAction<nint> _restoreItems = new(0x141B5B470);
     private const int _questCtxStateOffset = 0x2920;
     private const int _questCtxIdOffset = 0x292c;
     private const int _questCampIndexOffset = 0x291bc;
-    private static nint _questCtx = 0;
     private MethodInfo? _abandonQuestHook;
     private MethodInfo? _acceptQuestInternalHook;
     private MethodInfo? _departOnQuestHook;
@@ -50,6 +50,8 @@ public class FoodLock_RestartPlugin : IPlugin
     private bool _isFoodLocking;
     private FoodInfo? _foodInfo;
     private bool _waitingSwitchMap;
+    private bool _restarting;
+    private DateTime _lastTryTime = DateTime.MinValue;
 
     #endregion
 
@@ -86,29 +88,23 @@ public class FoodLock_RestartPlugin : IPlugin
     {
         if (KeyBindings.IsPressed(_foodHotkeyName))
         {
-            try
-            {
-                FoodLock();
-            }
-            catch (Exception e)
-            {
-                Logging.Error(e.ToString());
-            }
+            if (DateTime.Now - _lastTryTime < TimeSpan.FromMilliseconds(500))
+                return;
+            _lastTryTime = DateTime.Now;
+            try { FoodLock(); }
+            catch (Exception e) { Logging.Error(e.ToString()); }
         }
         else if (KeyBindings.IsPressed(_restartHotkeyName))
         {
-            try
-            {
-                Task.Run(Restart);
-            }
-            catch (Exception e)
-            {
-                Logging.Error(e.ToString());
-            }
+            if (DateTime.Now - _lastTryTime < TimeSpan.FromSeconds(1))
+                return;
+            _lastTryTime = DateTime.Now;
+            try { Task.Run(Restart); }
+            catch (Exception e) { Logging.Error(e.ToString()); }
         }
-        if (_waitingSwitchMap && GetMapTime() is >= 0f and <= 0.1f)
+        if (_waitingSwitchMap 
+            && (Quest.QuestState == (int)QuestState.Accepted || GetMapTime() is >= 0f and <= 0.1f ))
         {
-            var time = GetMapTime();
             SetFood();
             _waitingSwitchMap = false;
         }
@@ -231,7 +227,9 @@ public class FoodLock_RestartPlugin : IPlugin
             return false;
         var info = ReadQuestCtxInfo();
         if (info is { id: > 100 and < 70000, state: 3 })
+        {
             _acceptQuestHook!.Original(_questCtx, 0, 0);
+        }
         return true;
     }
 
@@ -240,8 +238,8 @@ public class FoodLock_RestartPlugin : IPlugin
         if (Quest.QuestState == (uint)QuestState.InProgress
             && Quest.CurrentQuestId != -1)
         {
-            var questId = Quest.CurrentQuestId;
-            var campIndex = Quest.SingletonInstance.Get<int>(_questCampIndexOffset);
+            if (_restarting) return;
+            _restarting = true;
             _abandonQuestHook!.Invoke(null, [Quest.SingletonInstance.Instance, 0u]);
             await Task.Delay(100);
             unsafe
@@ -252,15 +250,22 @@ public class FoodLock_RestartPlugin : IPlugin
             await Task.Delay(100);
             if (Reaccept())
             {
-                //_acceptQuestInternalHook!.Invoke(null,[Quest.SingletonInstance.Instance, questId, false]);
-                await Task.Delay(1000);
-                //Quest.SingletonInstance.Set(_questCampIndexOffset, campIndex);
+                await Task.Delay(2000);
                 _departOnQuestHook!.Invoke(null, [Quest.SingletonInstance.Instance, false]);
             }
+            await Task.Delay(3000);
+            _restarting = false;
         }
         else if (Quest.QuestState == (uint)QuestState.Accepted && Quest.CurrentQuestId != -1)
         {
             _departOnQuestHook!.Invoke(null, [Quest.SingletonInstance.Instance, false]);
+        }
+        else if (Quest.QuestState == (uint)QuestState.Completed
+            && Quest.QuestEndTimer.Active
+            && Quest.QuestEndTimer.Time > 0f
+            && !Quest.QuestEndTimer.Ended())
+        {
+            Quest.QuestEndTimer.SetToEnd();
         }
         else
         {
